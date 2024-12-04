@@ -13,85 +13,85 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class CoasterController extends AbstractController
 {
-    #[Route(path: '/coaster/add')]
-    public function add(EntityManagerInterface $em, Request $request): Response
-    {
-        $coaster = new Coaster();
-        /*$coaster->setName('Blue Fire')
-            ->setMaxHeight(38)
-            ->setMaxSpeed(100)
-            ->setLength(1056)
-            ->setOperating(true)
-        ;*/
+	#[Route(path: '/coaster/add')]
+	public function add(EntityManagerInterface $em, Request $request): Response
+	{
+		$coaster = new Coaster();
+		/*$coaster->setName('Blue Fire')
+			->setMaxHeight(38)
+			->setMaxSpeed(100)
+			->setLength(1056)
+			->setOperating(true)
+		;*/
 
-        $form = $this->createForm(CoasterType::class, $coaster);
-        $form->handleRequest($request);
+		$form = $this->createForm(CoasterType::class, $coaster);
+		$form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            // ajoute la nouvelle entité dans le manager Doctrine
-            $em->persist($coaster);
+		if ($form->isSubmitted() && $form->isValid()) {
+			// ajoute la nouvelle entité dans le manager Doctrine
+			$em->persist($coaster);
 
-            // Met à jour la DB
-            $em->flush();
+			// Met à jour la DB
+			$em->flush();
 
-            return $this->redirectToRoute('app_coaster_index');
-        }
+			return $this->redirectToRoute('app_coaster_index');
+		}
 
-        dump($coaster);
+		dump($coaster);
 
-        return $this->render('coaster/add.html.twig', [
-            'coasterForm' => $form,
-        ]);
-    }
+		return $this->render('coaster/add.html.twig', [
+			'coasterForm' => $form,
+		]);
+	}
 
-    #[Route('/coaster/')]
-    public function index(CoasterRepository $coasterRepository): Response
-    {
-        $coasters = $coasterRepository->findAll();
+	#[Route('/coaster/')]
+	public function index(CoasterRepository $coasterRepository): Response
+	{
+		$coasters = $coasterRepository->findAll();
 
-        dump($coasters);
+		dump($coasters);
 
-        return $this->render('coaster/index.html.twig', [
-            'coasters' => $coasters,
-        ]);
-    }
+		return $this->render('coaster/index.html.twig', [
+			'coasters' => $coasters,
+		]);
+	}
 
-    #[Route('/coaster/{id}/edit')]
-    public function edit(Coaster $coaster, Request $request, EntityManagerInterface $em): Response
-    {
-        $form = $this->createForm(CoasterType::class, $coaster);
-        $form->handleRequest($request);
+	#[Route('/coaster/{id}/edit')]
+	public function edit(Coaster $coaster, Request $request, EntityManagerInterface $em): Response
+	{
+		$form = $this->createForm(CoasterType::class, $coaster);
+		$form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+		if ($form->isSubmitted() && $form->isValid()) {
 
-            // Met à jour la DB
-            $em->flush();
+			// Met à jour la DB
+			$em->flush();
 
-            return $this->redirectToRoute('app_coaster_index');
-        }
+			return $this->redirectToRoute('app_coaster_index');
+		}
 
-        dump($coaster);
+		dump($coaster);
+		
+		return $this->render('coaster/edit.html.twig', [
+			'coasterForm' => $form,
+		]);
+	}
 
-        return $this->render('coaster/edit.html.twig', [
-            'coasterForm' => $form,
-        ]);
-    }
-
-    #[Route('/coaster/{id}/delete')]
-    public function delete(Coaster $coaster, Request $request, EntityManagerInterface $em): Response
-    {
-        if ($this->isCsrfTokenValid(
-            'delete'.$coaster->getId(),
-            $request->request->get('_token')
-        )) {
-            $em->remove($coaster);
-            $em->flush();
-        
-            return $this->redirectToRoute('app_coaster_index');
-        }
-        
-        return $this->render('coaster/delete.html.twig', [
-            'coaster' => $coaster,
-        ]);
-    }
+	#[Route('/coaster/{id}/delete')]
+	public function delete(Coaster $coaster, Request $request, EntityManagerInterface $em): Response
+	{
+		if ($this->isCsrfTokenValid(
+			'delete'.$coaster->getId(),
+			$request->request->get('_token')
+		)) {
+			$em->remove($coaster);
+			$em->flush();
+		
+			return $this->redirectToRoute('app_coaster_index');
+		}
+		
+		return $this->render('coaster/delete.html.twig', [
+			'coaster' => $coaster,
+		]);
+	}
 }

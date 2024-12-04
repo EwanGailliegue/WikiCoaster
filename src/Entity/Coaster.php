@@ -19,14 +19,15 @@ class Coaster
     #[ORM\Column(nullable: true)]
     private ?int $maxSpeed = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $lenght = null;
 
     #[ORM\Column(nullable: true)]
     private ?int $maxHeight = null;
 
     #[ORM\Column]
     private ?bool $operating = null;
+
+    #[ORM\Column]
+    private ?int $length = null;
 
     public function getId(): ?int
     {
@@ -57,17 +58,7 @@ class Coaster
         return $this;
     }
 
-    public function getLenght(): ?int
-    {
-        return $this->lenght;
-    }
-
-    public function setLenght(?int $lenght): static
-    {
-        $this->lenght = $lenght;
-
-        return $this;
-    }
+  
 
     public function getMaxHeight(): ?int
     {
@@ -89,6 +80,18 @@ class Coaster
     public function setOperating(bool $operating): static
     {
         $this->operating = $operating;
+
+        return $this;
+    }
+
+    public function getLength(): ?int
+    {
+        return $this->length;
+    }
+
+    public function setLength(int $length): static
+    {
+        $this->length = $length;
 
         return $this;
     }
