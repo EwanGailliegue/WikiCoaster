@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Park;
-use App\Form\ParkType;
+use App\Form\Park1Type;
 use App\Repository\ParkRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,7 +26,7 @@ final class ParkController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $park = new Park();
-        $form = $this->createForm(ParkType::class, $park);
+        $form = $this->createForm(Park1Type::class, $park);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -53,7 +53,7 @@ final class ParkController extends AbstractController
     #[Route('/{id}/edit', name: 'app_park_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Park $park, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(ParkType::class, $park);
+        $form = $this->createForm(Park1Type::class, $park);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
