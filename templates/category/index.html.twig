@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Catégories{% endblock %}
+
+{% block body %}
+    <h1>Catégories</h1>
+    <div class="my-2">
+        <a href="{{ path('app_category_new') }}" class="btn btn-success"> <i class="bi bi-plus"></i> Ajouter une catégorie</a>
+    </div>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Color</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for category in categories %}
+            <tr>
+                <td>{{ category.name }}</td>
+                <td>{% if category.color is not empty %}
+                    <span class="badge" style="background-color: {{ category.color }}">{{ category.color }}{% endif %}</span></td>
+                <td>
+                    <a href="{{ path('app_category_edit', {'id': category.id}) }}" class="btn btn-secondary btn-sm">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    
+{% endblock %}

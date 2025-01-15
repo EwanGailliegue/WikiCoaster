@@ -3,7 +3,10 @@
 namespace App\Entity;
 
 use App\Repository\CoasterRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CoasterRepository::class)]
 class Coaster
@@ -14,20 +17,40 @@ class Coaster
     private ?int $id = null;
 
     #[ORM\Column(length: 80)]
+    #[Assert\NotBlank()]
     private ?string $name = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\Positive()]
     private ?int $maxSpeed = null;
 
+    #[ORM\Column(nullable: true)]
+    #[Assert\Positive()]
+    private ?int $length = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\Positive()]
     private ?int $maxHeight = null;
 
     #[ORM\Column]
-    private ?bool $operating = null;
+    private ?bool $operating = true;
 
-    #[ORM\Column]
-    private ?int $length = null;
+    #[ORM\ManyToOne(inversedBy: 'coasters')]
+    private ?Park $park = null;
+
+    /**
+     * @var Collection<int, Category>
+     */
+    #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'coasters')]
+    private Collection $categories;
+
+    #[ORM\ManyToOne(inversedBy: 'coasters')]
+    private ?User $author = null;
+
+    public function __construct()
+    {
+        $this->categories = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -58,7 +81,17 @@ class Coaster
         return $this;
     }
 
-  
+    public function getLength(): ?int
+    {
+        return $this->length;
+    }
+
+    public function setLength(?int $length): static
+    {
+        $this->length = $length;
+
+        return $this;
+    }
 
     public function getMaxHeight(): ?int
     {
@@ -84,14 +117,50 @@ class Coaster
         return $this;
     }
 
-    public function getLength(): ?int
+    public function getPark(): ?Park
     {
-        return $this->length;
+        return $this->park;
     }
 
-    public function setLength(int $length): static
+    public function setPark(?Park $park): static
     {
-        $this->length = $length;
+        $this->park = $park;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Category>
+     */
+    public function getCategories(): Collection
+    {
+        return $this->categories;
+    }
+
+    public function addCategory(Category $category): static
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(Category $category): static
+    {
+        $this->categories->removeElement($category);
+
+        return $this;
+    }
+
+    public function getAuthor(): ?User
+    {
+        return $this->author;
+    }
+
+    public function setAuthor(?User $author): static
+    {
+        $this->author = $author;
 
         return $this;
     }
