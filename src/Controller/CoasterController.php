@@ -8,6 +8,7 @@ use App\Repository\CategoryRepository;
 use App\Repository\CoasterRepository;
 use App\Repository\ParkRepository;
 use App\Security\Voter\CoasterVoter;
+use App\Service\FileUploaderInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,7 +37,7 @@ class CoasterController extends AbstractController
         // $coasters = $coasterRepository->findAll();
         $coasters = $coasterRepository->findFiltered($parkId, $categoryId, $search, $itemCount, $begin);
 
-        dump($coasters);
+        // dump($coasters);
 
         $pageCount = max(ceil($coasters->count() / $itemCount), 1);
 
@@ -50,7 +51,7 @@ class CoasterController extends AbstractController
 
     #[Route(path: '/coaster/add')]
     #[IsGranted('ROLE_USER')]
-    public function add(EntityManagerInterface $em, Request $request): Response
+    public function add(EntityManagerInterface $em, Request $request, FileUploaderInterface $fileUploader): Response
     {
         $user = $this->getUser();
 
@@ -67,6 +68,12 @@ class CoasterController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Donnée du champ "image"
+            $image = $form->get('image')->getData();
+            if ($image !== null) {
+                $path = $fileUploader->upload($image);
+                $coaster->setImageFileName($path);
+            }
             // ajoute la nouvelle entité dans le manager Doctrine
             $em->persist($coaster);
 
@@ -76,7 +83,7 @@ class CoasterController extends AbstractController
             return $this->redirectToRoute('app_coaster_index');
         }
 
-        dump($coaster);
+        //dump($coaster);
 
         return $this->render('coaster/add.html.twig', [
             'coasterForm' => $form,
@@ -84,7 +91,7 @@ class CoasterController extends AbstractController
     }
 
     #[Route('/coaster/{id}/edit')]
-    public function edit(Coaster $coaster, Request $request, EntityManagerInterface $em): Response
+    public function edit(Coaster $coaster, Request $request, EntityManagerInterface $em, FileUploaderInterface $fileUploader): Response
     {
         $this->denyAccessUnlessGranted(CoasterVoter::EDIT, $coaster);
         
@@ -92,7 +99,16 @@ class CoasterController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Donnée du champ "image"
+            $image = $form->get('image')->getData();
+            if ($image !== null) {
+                if ($coaster->getImageFileName()) {
+                    $fileUploader->remove($coaster->getImageFileName());
+                }
 
+                $path = $fileUploader->upload($image);
+                $coaster->setImageFileName($path);
+            }
             // Met à jour la DB
             $em->flush();
 
@@ -109,6 +125,8 @@ class CoasterController extends AbstractController
     #[Route('/coaster/{id}/delete')]
     public function delete(Coaster $coaster, Request $request, EntityManagerInterface $em): Response
     {
+        $this->denyAccessUnlessGranted(CoasterVoter::EDIT, $coaster);
+        
         if ($this->isCsrfTokenValid(
             'delete'.$coaster->getId(),
             $request->request->get('_token')

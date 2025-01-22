@@ -9,8 +9,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 final class CoasterVoter extends Voter
 {
-    public const EDIT = 'POST_EDIT';
-    public const VIEW = 'POST_VIEW';
+    public const EDIT = 'EDIT';
+    public const VIEW = 'VIEW';
 
     public function __construct(
         private readonly AuthorizationCheckerInterface $authorizationChecker
@@ -34,7 +34,7 @@ final class CoasterVoter extends Voter
         }
 
         // ... (check conditions and return true to grant permission) ...
-        switch ($attribute) {
+        /*switch ($attribute) {
             case self::EDIT:
                 if ($this->authorizationChecker->isGranted('ROLE_ADMIN')) {
                     return true;
@@ -48,6 +48,14 @@ final class CoasterVoter extends Voter
                 break;
         }
 
-        return false;
+        return false;*/
+
+        // $roles = in_array('ROLE_ADMIN', $user->getRoles());
+
+        return match ($attribute) {
+            self::EDIT => $subject->getAuthor() == $user || $this->authorizationChecker->isGranted('ROLE_ADMIN'),
+            self::VIEW => true,
+            default => false,
+        };
     }
 }
